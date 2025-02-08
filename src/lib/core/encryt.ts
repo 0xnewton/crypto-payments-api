@@ -5,7 +5,7 @@ import {
   kmsLocation,
   kmsPrivateKeyEncryptorName,
   kmsWebhookSecretEncryptorName,
-  projectID,
+  gcpProjectID,
 } from "./config";
 import { KeyManagementServiceClient } from "@google-cloud/kms";
 import { StringParam } from "firebase-functions/lib/params/types";
@@ -68,32 +68,11 @@ export const encryptString = async (
 };
 
 export const getEncryptConfig = async (keyNameVariable: StringParam) => {
-  if (!projectID) {
-    logger.error("GOOGLE_CLOUD_PROJECT environment variable is not set");
-    throw new Error("GOOGLE_CLOUD_PROJECT environment variable is not set");
-  }
-
-  const [location, keyRingName, keyName] = await Promise.all([
-    kmsLocation.value(),
-    kmsKeyringName.value(),
-    keyNameVariable.value(),
-  ]);
-
-  if (!location || !keyRingName || !keyName) {
-    logger.error("Missing KMS configuration", {
-      projectID,
-      location,
-      keyRingName,
-      keyName,
-    });
-    throw new Error("Missing KMS configuration");
-  }
-
   const config: EncryptConfig = {
-    projectID,
-    location,
-    keyRingName,
-    keyName,
+    projectID: gcpProjectID.value(),
+    location: kmsLocation.value(),
+    keyRingName: kmsKeyringName.value(),
+    keyName: keyNameVariable.value(),
   };
 
   return config;

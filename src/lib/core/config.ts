@@ -1,6 +1,7 @@
-import { defineString } from "firebase-functions/params";
-
-export const projectID = process.env.GOOGLE_CLOUD_PROJECT;
+import {
+  defineString,
+  projectID as gcpProjectID,
+} from "firebase-functions/params";
 
 export enum EnvironmentConfigKeys {
   /**
@@ -25,6 +26,7 @@ export enum EnvironmentConfigKeys {
   DAO_TREASURY_EVM_ADDRESS = "DAO_TREASURY_EVM_ADDRESS",
 }
 
+export { gcpProjectID };
 export const kmsLocation = defineString(EnvironmentConfigKeys.KMS_LOCATION);
 export const kmsKeyringName = defineString(EnvironmentConfigKeys.KMS_KEYRING);
 export const kmsPrivateKeyEncryptorName = defineString(
