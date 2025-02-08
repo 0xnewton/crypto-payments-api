@@ -1,11 +1,11 @@
 import { Context } from "telegraf";
-import { CustomClaims, User, UserRole } from "../users/types";
+import { CustomClaims, User } from "../users/types";
 import { logger } from "firebase-functions";
 import * as userService from "../users/service";
 import { FetchResult, OrganizationID, TelegramUserID } from "../lib/types";
 import { TGUserNotFoundError } from "../users/errors";
 import { generateUserIDFromTelegramID, isReadableRole } from "../users/utils";
-import { UserWithClaims } from "./types";
+import { UserContext } from "./types";
 import { Organization } from "../organizations/types";
 import * as organizationService from "../organizations/service";
 
@@ -15,9 +15,10 @@ export const UNREGISTERED_USER_MESSAGE =
 export const SOMETHING_WENT_WRONG_MESSAGE =
   "Something went wrong. Please try again.";
 
-export const getUserFromContext = async (
-  context: Context
-): Promise<UserWithClaims> => {
+export const getUserContext = async (
+  context: Context,
+  organizationID?: OrganizationID // If not provided, default to first organization in user claims
+): Promise<UserContext> => {
   logger.info("Fetching user from context", {
     from: context.from,
     chat: context.chat,
@@ -72,42 +73,15 @@ export const getUserFromContext = async (
 
   logger.info("User details", { user, parsedClaims });
 
-  return { user, claims: parsedClaims };
-};
-
-/**
- * Escapes Telegram MarkdownV2 special characters by prefixing them with a backslash.
- * The characters escaped are: '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'
- *
- * @param text The input string to escape.
- * @returns The escaped string.
- */
-export function escapeMarkdown(text: string): string {
-  // We create a regex that matches any of the special characters.
-  // Using the RegExp constructor with a string literal lets us easily escape the characters.
-  const escapeCharsRegex = new RegExp(
-    "([_*\\[\\]\\(\\)~`>#+\\-=\\|{}\\.!])",
-    "g"
-  );
-  return text.replace(escapeCharsRegex, "\\$1");
-}
-
-export const getUserOrganization = async (
-  user: UserWithClaims,
-  organizationID?: OrganizationID
-): Promise<{
-  organization: FetchResult<Organization>;
-  role: UserRole;
-}> => {
   // Matches an organizationID passed in, or selects the first in the list
-  const userRole = user.claims?.roles?.find((role) =>
+  const userRole = parsedClaims.roles.find((role) =>
     organizationID ? role.organizationID === organizationID : true
   );
   logger.info("Fetching user organization", { user });
   if (!userRole) {
     logger.error("User has no organization in claims", {
       user,
-      claims: user.claims,
+      claims: parsedClaims,
     });
     throw new Error(SOMETHING_WENT_WRONG_MESSAGE);
   }
@@ -134,11 +108,28 @@ export const getUserOrganization = async (
   if (!organization) {
     logger.error("Organization not found", {
       organizationID: userRole.organizationID,
-      userID: user.user.data.id,
+      userID: user.data.id,
       userRole,
     });
     throw new Error(SOMETHING_WENT_WRONG_MESSAGE);
   }
 
-  return { organization, role: userRole };
+  return { organization, role: userRole, user, claims: parsedClaims };
 };
+
+/**
+ * Escapes Telegram MarkdownV2 special characters by prefixing them with a backslash.
+ * The characters escaped are: '_', '*', '[', ']', '(', ')', '~', '`', '>', '#', '+', '-', '=', '|', '{', '}', '.', '!'
+ *
+ * @param text The input string to escape.
+ * @returns The escaped string.
+ */
+export function escapeMarkdown(text: string): string {
+  // We create a regex that matches any of the special characters.
+  // Using the RegExp constructor with a string literal lets us easily escape the characters.
+  const escapeCharsRegex = new RegExp(
+    "([_*\\[\\]\\(\\)~`>#+\\-=\\|{}\\.!])",
+    "g"
+  );
+  return text.replace(escapeCharsRegex, "\\$1");
+}

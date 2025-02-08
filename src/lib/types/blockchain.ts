@@ -20,6 +20,7 @@ export type ChainSnippet = Pick<Chain, "name" | "evmChainId" | "networkEnum">;
 
 export enum NetworkEnum {
   BASE_MAINNET = "base-mainnet",
+  /** TODO: remove testing */
   BASE_SEPOLIA = "base-sepolia",
 }
 

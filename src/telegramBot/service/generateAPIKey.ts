@@ -1,10 +1,9 @@
 import { logger } from "firebase-functions/v1";
-import { BotContext, UserWithClaims } from "../types";
+import { BotContext } from "../types";
 import { FetchResult } from "../../lib/types";
-import { UserRole } from "../../users/types";
+import { User, UserRole } from "../../users/types";
 import {
-  getUserFromContext,
-  getUserOrganization,
+  getUserContext,
   SOMETHING_WENT_WRONG_MESSAGE,
   UNREGISTERED_USER_MESSAGE,
 } from "../utils";
@@ -18,34 +17,18 @@ export const generateAPIKey = async (ctx: BotContext) => {
   ctx.reply("Ok, generating a new API key... Please wait.");
   logger.info("API key generation command received");
 
-  let userDetails: UserWithClaims;
+  let user: FetchResult<User>;
+  let organization: FetchResult<Organization>;
+  let role: UserRole;
   try {
-    userDetails = await getUserFromContext(ctx);
+    ({ user, organization, role } = await getUserContext(ctx));
   } catch (err: any) {
     if (err instanceof TGUserNotFoundError) {
       ctx.reply(UNREGISTERED_USER_MESSAGE);
       return;
     }
-    logger.error("Error fetching user", {
+    logger.error("Error fetching user context", {
       errMessag: err?.message,
-      code: err?.code,
-    });
-    ctx.reply(SOMETHING_WENT_WRONG_MESSAGE);
-    return;
-  }
-
-  // Gets organization
-  let organization: Organization;
-  let role: UserRole;
-  // default to
-  try {
-    ({
-      organization: { data: organization },
-      role,
-    } = await getUserOrganization(userDetails));
-  } catch (err: any) {
-    logger.error("Error fetching organization", {
-      errMessage: err?.message,
       code: err?.code,
     });
     ctx.reply(SOMETHING_WENT_WRONG_MESSAGE);
@@ -62,8 +45,8 @@ export const generateAPIKey = async (ctx: BotContext) => {
   try {
     // Generate the API key
     ({ key, secretValue } = await apiKeyService.create({
-      userID: userDetails.user.data.id,
-      organizationID: organization.id,
+      userID: user.data.id,
+      organizationID: organization.data.id,
     }));
   } catch (err: any) {
     logger.error("Error generating API key", {
@@ -81,8 +64,8 @@ export const generateAPIKey = async (ctx: BotContext) => {
 
   logger.info("API key generated", {
     key: key.data.id,
-    userID: userDetails.user.data.id,
-    organizationID: organization.id,
+    userID: user.data.id,
+    organizationID: organization.data.id,
   });
 
   return;

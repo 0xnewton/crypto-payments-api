@@ -5,9 +5,10 @@ import {
   EncryptedPrivateKey,
   FetchResult,
   OrganizationID,
+  UserID,
   WalletID,
 } from "../lib/types";
-import { Wallet } from "./types";
+import { Wallet, WalletSource } from "./types";
 import {
   getNewWalletRef,
   getWalletCollection,
@@ -24,8 +25,10 @@ interface CreateWalletParams {
     encryptedWebhookSecret: string | null;
     daoFeeBasisPoints: number;
     daoFeeRecipient: Address;
-    endCustomerRecipient: Address;
+    recipientAddress: Address;
     chain: ChainSnippet;
+    source: WalletSource;
+    createdBy: UserID | null;
   };
 }
 
@@ -45,11 +48,13 @@ export const createWallet = async (
     encryptedWebhookSecret: params.payload.encryptedWebhookSecret,
     daoFeeBasisPoints: params.payload.daoFeeBasisPoints,
     daoFeeRecipient: params.payload.daoFeeRecipient,
-    endCustomerRecipient: params.payload.endCustomerRecipient,
+    recipientAddress: params.payload.recipientAddress,
     chain: params.payload.chain,
     createdAt: nowTimestamp,
     updatedAt: nowTimestamp,
     deletedAt: null,
+    source: params.payload.source,
+    createdBy: params.payload.createdBy,
   };
   await walletRef.set(walletPayload);
   return { data: walletPayload, ref: walletRef };

@@ -5,8 +5,13 @@ import {
   OrganizationID,
   UnixTimestamp,
   WalletID,
+  UserID,
 } from "../lib/types";
 
+export enum WalletSource {
+  API = "API",
+  Telegram = "Telegram",
+}
 export interface Wallet {
   id: WalletID;
   organizationID: OrganizationID;
@@ -39,9 +44,11 @@ export interface Wallet {
   /**
    * End customer wallet address that receives the payment
    */
-  endCustomerRecipient: Address;
+  recipientAddress: Address;
   /**
    * Details about the chain the wallet is on
    */
   chain: ChainSnippet;
+  source: WalletSource;
+  createdBy: UserID | null;
 }

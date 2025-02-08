@@ -11,7 +11,7 @@ import {
   NetworkEnum,
   OrganizationID,
 } from "../../lib/types";
-import { Wallet } from "../types";
+import { Wallet, WalletSource } from "../types";
 import {
   createWallet,
   getWalletByAddress,
@@ -19,13 +19,22 @@ import {
 } from "../db";
 import * as organizationService from "../../organizations/service";
 import { SUPPORTED_CHAINS } from "../../lib/constants";
+import { Organization } from "../../organizations/types";
+import { User } from "../../users/types";
 
 interface CreateWalletParams {
   organizationID: OrganizationID;
-  webhookURL: string;
-  webhookSecret?: string;
-  networkEnum: NetworkEnum;
-  recipientAddress: Address;
+  payload: {
+    webhookURL: string;
+    webhookSecret?: string;
+    networkEnum: NetworkEnum;
+    recipientAddress: Address;
+    source: WalletSource;
+  };
+  cache: {
+    organization?: FetchResult<Organization>;
+    user?: FetchResult<User>;
+  };
 }
 
 export const create = async (
@@ -45,10 +54,13 @@ export const create = async (
     getWalletByAddress({
       address: walletKeyPair.publicKey,
     }),
-    organizationService.getByID(params.organizationID),
+    params.cache.organization ||
+      organizationService.getByID(params.organizationID),
     organizationService.getConfig(params.organizationID),
     encryptWalletPrivateKey(walletKeyPair.privateKey),
-    params.webhookSecret ? encryptWebhookSecret(params.webhookSecret) : null,
+    params.payload.webhookSecret
+      ? encryptWebhookSecret(params.payload.webhookSecret)
+      : null,
     getWalletCountByOrganizationID(params.organizationID),
   ]);
 
@@ -85,11 +97,11 @@ export const create = async (
 
   // Save the wallet to the database
   const chain = SUPPORTED_CHAINS.find(
-    (c) => c.networkEnum === params.networkEnum
+    (c) => c.networkEnum === params.payload.networkEnum
   );
   if (!chain) {
     logger.error("Unsupported chain", {
-      networkEnum: params.networkEnum,
+      networkEnum: params.payload.networkEnum,
       organizationID: params.organizationID,
       address: walletKeyPair.publicKey,
     });
@@ -107,12 +119,14 @@ export const create = async (
       name: "Main Wallet",
       address: walletKeyPair.publicKey,
       encryptedPrivateKey,
-      webhookURL: params.webhookURL,
+      webhookURL: params.payload.webhookURL,
       encryptedWebhookSecret: encryptedSecret,
-      daoFeeBasisPoints: 0,
+      daoFeeBasisPoints: organizationConfig.data.defaultDaoFeeBasisPoints,
       daoFeeRecipient: chain.daoFeeWallet,
-      endCustomerRecipient: params.recipientAddress,
+      recipientAddress: params.payload.recipientAddress,
       chain: chainSnippet,
+      source: params.payload.source,
+      createdBy: params.cache.user?.data.id || null,
     },
   });
 
