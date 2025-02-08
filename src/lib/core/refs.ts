@@ -1,9 +1,20 @@
-import { CollectionGroup, CollectionReference } from "firebase-admin/firestore";
-import { DBCollections, OrganizationID, UserID, APIKeyID } from "../types";
+import {
+  CollectionGroup,
+  CollectionReference,
+  DocumentReference,
+} from "firebase-admin/firestore";
+import {
+  DBCollections,
+  OrganizationID,
+  UserID,
+  APIKeyID,
+  WalletID,
+} from "../types";
 import { db } from "./platform";
 import { User } from "../../users/types";
-import { Organization } from "../../organizations/types";
+import { Organization, OrganizationConfig } from "../../organizations/types";
 import { APIKey } from "../../apiKeys/types";
+import { Wallet } from "../../wallets/types";
 
 export const getUserCollection = () => {
   return db.collection(DBCollections.Users) as CollectionReference<User>;
@@ -39,4 +50,28 @@ export const getAPIKeyDoc = (organizationID: OrganizationID, id: APIKeyID) => {
 
 export const getAPIKeyCollectionGroup = () => {
   return db.collectionGroup(DBCollections.APIKeys) as CollectionGroup<APIKey>;
+};
+
+export const getWalletCollection = (organizationID: OrganizationID) => {
+  return getOrganizationRef(organizationID).collection(
+    DBCollections.Wallets
+  ) as CollectionReference<Wallet>;
+};
+
+export const getNewWalletRef = (organizationID: OrganizationID) => {
+  return getWalletCollection(organizationID).doc();
+};
+
+export const getWalletDoc = (organizationID: OrganizationID, id: WalletID) => {
+  return getWalletCollection(organizationID).doc(id);
+};
+
+export const getWalletCollectionGroup = () => {
+  return db.collectionGroup(DBCollections.Wallets) as CollectionGroup<Wallet>;
+};
+
+export const getOrganizationConfigRef = (organizationID: OrganizationID) => {
+  return getOrganizationRef(organizationID)
+    .collection(DBCollections.OrganizationConfig)
+    .doc("config") as DocumentReference<OrganizationConfig>;
 };

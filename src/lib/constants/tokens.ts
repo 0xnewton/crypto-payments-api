@@ -1,7 +1,12 @@
-import { ERC20Token, NativeEVMToken, NetworkEnum, Token } from "../types";
+import {
+  ERC20Token,
+  Address,
+  NativeEVMToken,
+  NetworkEnum,
+  Token,
+} from "../types";
 
 export const ETH_BASE_MAINNET: NativeEVMToken = {
-  address: "native",
   name: "Ethereum",
   symbol: "ETH",
   decimals: 18,
@@ -9,7 +14,6 @@ export const ETH_BASE_MAINNET: NativeEVMToken = {
 };
 
 export const ETH_BASE_SEPOLIA: NativeEVMToken = {
-  address: "native",
   name: "Ethereum",
   symbol: "ETH",
   decimals: 18,
@@ -21,7 +25,7 @@ export const SUPPORTED_TOKENS: Token[] = [
   ETH_BASE_SEPOLIA,
   // USDC Base Mainnet
   {
-    address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+    address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913" as Address,
     name: "USD Coin",
     symbol: "USDC",
     decimals: 6,
@@ -29,7 +33,7 @@ export const SUPPORTED_TOKENS: Token[] = [
   },
   // USDC Base Sepolia
   {
-    address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+    address: "0x036CbD53842c5426634e7929541eC2318f3dCF7e" as Address,
     name: "USD Coin",
     symbol: "USDC",
     decimals: 6,
@@ -42,5 +46,5 @@ export const getChainTokens = (chain: NetworkEnum): Token[] => {
 };
 
 export const getChainERC20Tokens = (chain: NetworkEnum): ERC20Token[] => {
-  return getChainTokens(chain).filter((t) => t.address !== "native");
+  return getChainTokens(chain).filter((t): t is ERC20Token => "address" in t);
 };

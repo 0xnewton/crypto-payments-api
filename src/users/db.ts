@@ -1,6 +1,7 @@
 import { logger } from "firebase-functions";
 import {
   FetchResult,
+  OrganizationConfigID,
   OrganizationID,
   TelegramUserID,
   UserID,
@@ -9,10 +10,14 @@ import { User } from "./types";
 import {
   db,
   getNewOrganizationRef,
+  getOrganizationConfigRef,
   getUserCollection,
   getUserRef,
 } from "../lib/core";
-import { Organization } from "../organizations/types";
+import { Organization, OrganizationConfig } from "../organizations/types";
+
+const DEFAULT_MAX_WALLETS_ALLOWED = 5;
+const DEFAULT_DAO_FEE_BASIS_POINTS = 200; // 2%
 
 export const getUserByID = async (
   userID: UserID
@@ -60,6 +65,9 @@ export const createUserWithOrganization = async (
   // Run a transaction to batch write users
   const userRef = getUserRef(params.id);
   const organizationRef = getNewOrganizationRef();
+  const configRef = getOrganizationConfigRef(
+    organizationRef.id as OrganizationID
+  );
 
   const userBody: User = {
     id: params.id,
@@ -80,10 +88,20 @@ export const createUserWithOrganization = async (
     updatedAt: nowTimestamp,
     deletedAt: null,
   };
+  const configBody: OrganizationConfig = {
+    id: configRef.id as OrganizationConfigID,
+    organizationID: organizationRef.id as OrganizationID,
+    maxWalletsAllowed: DEFAULT_MAX_WALLETS_ALLOWED,
+    defaultDaoFeeBasisPoints: DEFAULT_DAO_FEE_BASIS_POINTS,
+    createdAt: nowTimestamp,
+    updatedAt: nowTimestamp,
+    deletedAt: null,
+  };
   logger.info("User and org payloads", { userBody, organizationBody });
   await db.runTransaction(async (tx) => {
     tx.create(userRef, userBody);
     tx.create(organizationRef, organizationBody);
+    tx.create(configRef, configBody);
   });
 
   return {

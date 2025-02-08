@@ -1,15 +1,22 @@
-export type NativeAddress = "native";
+import { Brand } from "./utils";
+
+export type Address = Brand<string, "Address">;
+export type PrivateKey = Brand<string, "PrivateKey">;
 
 export interface Chain {
   name: string;
-  evmChainId?: number;
+  evmChainId: number | null;
   rpcUrl: string;
   networkEnum: NetworkEnum;
   isTestnet: boolean;
   blockExplorerUrl: string;
   nativeCurrency: NativeEVMToken;
   tokens: ERC20Token[];
+  daoFeeWallet: Address;
+  isEVM: boolean;
 }
+
+export type ChainSnippet = Pick<Chain, "name" | "evmChainId" | "networkEnum">;
 
 export enum NetworkEnum {
   BASE_MAINNET = "base-mainnet",
@@ -17,15 +24,18 @@ export enum NetworkEnum {
 }
 
 export interface ERC20Token {
-  address: string;
+  address: Address;
   name: string;
   symbol: string;
   decimals: number;
   chain: NetworkEnum;
 }
 
-export interface NativeEVMToken extends ERC20Token {
-  address: NativeAddress;
-}
+export type NativeEVMToken = Omit<ERC20Token, "address">;
 
 export type Token = ERC20Token | NativeEVMToken;
+
+export interface WalletKeyPair {
+  privateKey: PrivateKey;
+  publicKey: Address;
+}

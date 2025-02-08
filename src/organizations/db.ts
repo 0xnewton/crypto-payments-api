@@ -1,7 +1,7 @@
 import { logger } from "firebase-functions";
 import { FetchResult, OrganizationID } from "../lib/types";
-import { getOrganizationRef } from "../lib/core";
-import { Organization } from "./types";
+import { getOrganizationConfigRef, getOrganizationRef } from "../lib/core";
+import { Organization, OrganizationConfig } from "./types";
 
 export const deleteOrganization = async (id: OrganizationID): Promise<void> => {
   logger.info("Deleting organization", { id });
@@ -22,4 +22,16 @@ export const getOrganizationByID = async (
     return null;
   }
   return { data, ref: docRef };
+};
+
+export const getOrganizationConfig = async (
+  organizationID: OrganizationID
+): Promise<FetchResult<OrganizationConfig> | null> => {
+  const doc = await getOrganizationConfigRef(organizationID).get();
+  const data = doc.data();
+  if (!doc.exists || !data) {
+    logger.error("Organization config not found", { organizationID });
+    return null;
+  }
+  return { data, ref: doc.ref };
 };
