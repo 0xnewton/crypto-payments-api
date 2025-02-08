@@ -3,8 +3,8 @@ import {
   ETH_BASE_SEPOLIA,
   getChainERC20Tokens,
 } from "./tokens";
-import { Address, Chain, NetworkEnum, NODE_ENV } from "../types";
-import { daoFeeCollectionEVMAddress } from "../core/config";
+import { Chain, NetworkEnum, NODE_ENV } from "../types";
+import { daoTreasuryEVMAddress } from "../core/config";
 
 export const SUPPORTED_CHAINS: Chain[] = [
   {
@@ -17,7 +17,7 @@ export const SUPPORTED_CHAINS: Chain[] = [
     blockExplorerUrl: "https://base.blockscout.com/",
     nativeCurrency: ETH_BASE_MAINNET,
     tokens: getChainERC20Tokens(NetworkEnum.BASE_MAINNET),
-    daoFeeWallet: daoFeeCollectionEVMAddress.value() as Address,
+    daoFeeWallet: daoTreasuryEVMAddress,
   },
   {
     name: "Base Sepolia",
@@ -29,7 +29,7 @@ export const SUPPORTED_CHAINS: Chain[] = [
     blockExplorerUrl: "https://sepolia-explorer.base.org",
     nativeCurrency: ETH_BASE_SEPOLIA,
     tokens: getChainERC20Tokens(NetworkEnum.BASE_SEPOLIA),
-    daoFeeWallet: daoFeeCollectionEVMAddress.value() as Address,
+    daoFeeWallet: daoTreasuryEVMAddress,
   },
 ];
 

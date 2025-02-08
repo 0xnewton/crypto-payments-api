@@ -1,3 +1,4 @@
+import { StringParam } from "firebase-functions/lib/params/types";
 import { Brand } from "./utils";
 
 export type Address = Brand<string, "Address">;
@@ -12,7 +13,7 @@ export interface Chain {
   blockExplorerUrl: string;
   nativeCurrency: NativeEVMToken;
   tokens: ERC20Token[];
-  daoFeeWallet: Address;
+  daoFeeWallet: StringParam;
   isEVM: boolean;
 }
 

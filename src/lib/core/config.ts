@@ -6,23 +6,23 @@ export enum EnvironmentConfigKeys {
   /**
    * Google Key Management Service (KMS) location.
    */
-  KMS_LOCATION = "kms_location",
+  KMS_LOCATION = "KMS_LOCATION",
   /**
    * KMS keyring name for the project
    */
-  KMS_KEYRING = "kms_keyring",
+  KMS_KEYRING = "KMS_KEYRING",
   /**
    * Key name for the secret that encrypts private keys
    */
-  KMS_PRIVATE_KEY_ENCRYPTOR = "private_key_encryptor",
+  KMS_PRIVATE_KEY_ENCRYPTOR = "KMS_PRIVATE_KEY_ENCRYPTOR",
   /**
    * Key name for the secret that encrypts client webhook secrets
    */
-  KMS_WEBHOOK_SECRET_ENCRYPTOR = "webhook_secret_encryptor",
+  KMS_WEBHOOK_SECRET_ENCRYPTOR = "KMS_WEBHOOK_SECRET_ENCRYPTOR",
   /**
    *
    */
-  DAO_FEE_COLLECTION_EVM_ADDRESS = "dao_fee_collection_address",
+  DAO_TREASURY_EVM_ADDRESS = "DAO_TREASURY_EVM_ADDRESS",
 }
 
 export const kmsLocation = defineString(EnvironmentConfigKeys.KMS_LOCATION);
@@ -33,6 +33,6 @@ export const kmsPrivateKeyEncryptorName = defineString(
 export const kmsWebhookSecretEncryptorName = defineString(
   EnvironmentConfigKeys.KMS_WEBHOOK_SECRET_ENCRYPTOR
 );
-export const daoFeeCollectionEVMAddress = defineString(
-  EnvironmentConfigKeys.DAO_FEE_COLLECTION_EVM_ADDRESS
+export const daoTreasuryEVMAddress = defineString(
+  EnvironmentConfigKeys.DAO_TREASURY_EVM_ADDRESS
 );

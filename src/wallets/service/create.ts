@@ -122,7 +122,7 @@ export const create = async (
       webhookURL: params.payload.webhookURL,
       encryptedWebhookSecret: encryptedSecret,
       daoFeeBasisPoints: organizationConfig.data.defaultDaoFeeBasisPoints,
-      daoFeeRecipient: chain.daoFeeWallet,
+      daoFeeRecipient: chain.daoFeeWallet.value() as Address,
       recipientAddress: params.payload.recipientAddress,
       chain: chainSnippet,
       source: params.payload.source,
