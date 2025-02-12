@@ -3,28 +3,6 @@ import * as botService from "./service";
 import { TelegrafBot } from "./types";
 import { tgBotAPIKey } from "../lib/core";
 
-enum Commands {
-  start = "start",
-  generateAPIKey = "generate_api_key",
-  createWallet = "create_wallet",
-}
-
-// Define bot commands (note: parameters are not defined here)
-const commands = [
-  {
-    command: Commands.start,
-    description: "Register your account",
-  },
-  {
-    command: Commands.generateAPIKey,
-    description: "Generate an API key for our REST API",
-  },
-  {
-    command: Commands.createWallet,
-    description: `Create a new wallet. Usage: /${Commands.createWallet} <chain> <0xrecipientAddress> <webhook_url> <webhook_secret (optional)>`,
-  },
-];
-
 // Define as a singleton
 let bot: TelegrafBot | null = null;
 
@@ -56,3 +34,25 @@ export const initializeBot = (): TelegrafBot => {
 
   return bot;
 };
+
+enum Commands {
+  start = "start",
+  generateAPIKey = "generate_api_key",
+  createWallet = "create_wallet",
+}
+
+// Define bot commands (note: parameters are not defined here)
+const commands = [
+  {
+    command: Commands.start,
+    description: "Register your account",
+  },
+  {
+    command: Commands.generateAPIKey,
+    description: "Generate an API key for our REST API",
+  },
+  {
+    command: Commands.createWallet,
+    description: `Create a new wallet. Usage: /${Commands.createWallet} <chain> <0xrecipientAddress> <webhook_url> <webhook_secret (optional)>`,
+  },
+];
