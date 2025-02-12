@@ -8,7 +8,7 @@ import {
   UserID,
   WalletID,
 } from "../lib/types";
-import { Wallet, WalletSource } from "./types";
+import { Wallet, WalletAPIMetadata, WalletSource } from "./types";
 import {
   getNewWalletRef,
   getWalletCollection,
@@ -29,6 +29,7 @@ interface CreateWalletParams {
     chain: ChainSnippet;
     source: WalletSource;
     createdBy: UserID | null;
+    apiMetadata: WalletAPIMetadata | null;
   };
 }
 
@@ -55,6 +56,7 @@ export const createWallet = async (
     deletedAt: null,
     source: params.payload.source,
     createdBy: params.payload.createdBy,
+    apiMetadata: params.payload.apiMetadata,
   };
   await walletRef.set(walletPayload);
   return { data: walletPayload, ref: walletRef };

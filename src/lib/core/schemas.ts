@@ -18,6 +18,9 @@ export const httpsURLSchema = z
     message: "webhookURL must use ssl (https)",
   });
 
+// Generic interface for the API metadata which can be
+// an object up to 10 keys with arbitrary string field and
+// string | number | boolean value
 export const apiMetadataSchema = z
   .record(z.union([z.string(), z.number(), z.boolean()]))
   .optional()

@@ -88,8 +88,8 @@ export const createWallet = async (ctx: BotContext) => {
         source: WalletSource.Telegram,
       },
       cache: {
-        organization,
-        user,
+        organization: organization.data,
+        user: user.data,
       },
     });
     ctx.reply(

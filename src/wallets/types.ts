@@ -9,9 +9,10 @@ import {
 } from "../lib/types";
 
 export enum WalletSource {
-  API = "API",
+  ExternalAPI = "ExternalAPI",
   Telegram = "Telegram",
 }
+export type WalletAPIMetadata = Record<string, string | number | boolean>;
 export interface Wallet {
   id: WalletID;
   organizationID: OrganizationID;
@@ -51,4 +52,5 @@ export interface Wallet {
   chain: ChainSnippet;
   source: WalletSource;
   createdBy: UserID | null;
+  apiMetadata: WalletAPIMetadata | null;
 }

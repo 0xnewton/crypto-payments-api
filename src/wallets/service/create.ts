@@ -11,7 +11,7 @@ import {
   NetworkEnum,
   OrganizationID,
 } from "../../lib/types";
-import { Wallet, WalletSource } from "../types";
+import { Wallet, WalletAPIMetadata, WalletSource } from "../types";
 import {
   createWallet,
   getWalletByAddress,
@@ -22,18 +22,20 @@ import { SUPPORTED_CHAINS } from "../../lib/constants";
 import { Organization } from "../../organizations/types";
 import { User } from "../../users/types";
 
-interface CreateWalletParams {
+export interface CreateWalletParams {
   organizationID: OrganizationID;
   payload: {
+    name?: string;
     webhookURL: string;
     webhookSecret?: string;
     networkEnum: NetworkEnum;
     recipientAddress: Address;
     source: WalletSource;
+    apiMetadata?: WalletAPIMetadata;
   };
   cache: {
-    organization?: FetchResult<Organization>;
-    user?: FetchResult<User>;
+    organization?: Organization;
+    user?: User;
   };
 }
 
@@ -113,10 +115,12 @@ export const create = async (
     name: chain.name,
   };
 
+  const name = params.payload.name || `Wallet ${walletCount + 1}`;
+
   const wallet = await createWallet({
     payload: {
       organizationID: params.organizationID,
-      name: "Main Wallet",
+      name,
       address: walletKeyPair.publicKey,
       encryptedPrivateKey,
       webhookURL: params.payload.webhookURL,
@@ -126,7 +130,8 @@ export const create = async (
       recipientAddress: params.payload.recipientAddress,
       chain: chainSnippet,
       source: params.payload.source,
-      createdBy: params.cache.user?.data.id || null,
+      createdBy: params.cache.user?.id || null,
+      apiMetadata: params.payload?.apiMetadata || null,
     },
   });
 

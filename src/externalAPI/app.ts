@@ -1,9 +1,12 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as express from "express";
 import * as cors from "cors";
-import { demo } from "./handlers";
+import { createWallet, demo } from "./handlers";
 import { validateAPIKey, limiter, speedLimiter } from "./middleware";
 import { apiKeyHMACSecret } from "../lib/core";
+import { bodySchemaValidator } from "./middleware/bodySchemaValidator";
+import { createWalletByAPIReqBodySchema } from "./handlers/createWallet.validator";
+import { errorHandler } from "./middleware/errorHandler";
 
 const app = express();
 
@@ -23,6 +26,13 @@ app.use(speedLimiter);
 app.use(validateAPIKey);
 
 app.post("/demo", demo);
+app.post(
+  "/v1/wallet",
+  [bodySchemaValidator(createWalletByAPIReqBodySchema)],
+  createWallet
+);
+
+app.use(errorHandler);
 
 export const api = onRequest(
   {
