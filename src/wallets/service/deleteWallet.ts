@@ -3,7 +3,11 @@ import { getWalletDoc } from "../../lib/core";
 import { Wallet } from "../types";
 import * as webhookService from "../../walletWebhooks/service";
 
-// Hard delete the wallet
+/**
+ * Hard deletes wallet & detach from webhook
+ * @param wallet
+ * @returns
+ */
 export const deleteWallet = async (wallet: Wallet): Promise<void> => {
   logger.info("Delete Wallet Service", { wallet });
   if (wallet.deletedAt) {

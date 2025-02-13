@@ -25,8 +25,10 @@ interface UpsertWebhookAndAttachToWalletPayload {
 export const upsertWebhookAndAttachWallet = async (
   payload: UpsertWebhookAndAttachToWalletPayload
 ): Promise<WalletWebhook> => {
+  logger.info("Upsert Webhook and Attach Wallet", { payload });
   const webhookURL = walletWebhookURL.value();
   if (!webhookURL) {
+    logger.error("No internal webhook URL configured");
     throw new Error("No webhook URL provided");
   }
   const [webhookDB, wallet] = await Promise.all([

@@ -17,5 +17,9 @@ export const getClient = (network: NetworkEnum): Alchemy => {
     });
   }
 
-  return web3ClientMap[network];
+  const client = web3ClientMap[network];
+  if (!client) {
+    throw new Error("Client not found");
+  }
+  return client;
 };
