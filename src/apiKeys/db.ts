@@ -46,10 +46,8 @@ export const getAPIKeyByHash = async (
   const apiKey = await getAPIKeyCollectionGroup()
     .where(key, "==", params.hash)
     .get();
-  const docs = apiKey.docs.map((doc) => {
-    return { data: doc.data(), ref: doc.ref };
-  });
-  return docs[0].data || null;
+  const docs = apiKey.docs.map((doc) => doc.data());
+  return docs[0] || null;
 };
 
 export const getAPIKeyCount = async (
