@@ -96,7 +96,7 @@ export const createWallet = async (ctx: BotContext) => {
         `Address: ${result.address}\n` +
         `Recipient Address: ${result.recipientAddress}\n` +
         `Webhook URL: ${result.webhookURL}\n` +
-        "You will receive a webhook notification whe the wallet is funded."
+        "You will receive a webhook notification when the wallet is funded."
     );
   } catch (err: any) {
     logger.error("Error creating wallet", {

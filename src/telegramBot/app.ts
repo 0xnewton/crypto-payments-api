@@ -1,5 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import {
+  alchemyAuthToken,
+  alchemyAPIKey,
   apiKeyHMACSecret,
   tgBotAPIKey,
   tgWebhookSecretToken,
@@ -32,7 +34,13 @@ expressApp.use(async (req, res, next) => {
 // Set up webhook for Telegram bot
 export const app = onRequest(
   {
-    secrets: [tgBotAPIKey, tgWebhookSecretToken, apiKeyHMACSecret],
+    secrets: [
+      tgBotAPIKey,
+      tgWebhookSecretToken,
+      apiKeyHMACSecret,
+      alchemyAPIKey,
+      alchemyAuthToken,
+    ],
     minInstances: 1,
   },
   expressApp

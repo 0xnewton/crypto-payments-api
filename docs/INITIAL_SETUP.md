@@ -59,4 +59,6 @@ We use Google Key Management System (KMS) to manage encryption keys for variable
        --purpose "encryption"
    ```
 
-6. These values will be used in the deployment step when setting up the config
+   These values will be used in the deployment step when setting up the config
+
+6. Grant the `KMS Crypto Key Encryptor` role to the default compute service account (i.e. `53748573432-compute@developer.gserviceaccount.com`) or the service account running your functions.
