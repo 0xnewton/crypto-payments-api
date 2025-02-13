@@ -7,7 +7,6 @@ import {
 import {
   Address,
   ChainSnippet,
-  FetchResult,
   NetworkEnum,
   OrganizationID,
 } from "../../lib/types";
@@ -41,9 +40,7 @@ export interface CreateWalletParams {
   };
 }
 
-export const create = async (
-  params: CreateWalletParams
-): Promise<FetchResult<Wallet>> => {
+export const create = async (params: CreateWalletParams): Promise<Wallet> => {
   const walletKeyPair = generateWalletKeyPair();
 
   // Encrypt the private key
@@ -89,10 +86,10 @@ export const create = async (
     throw new Error("Wallet already exists");
   }
 
-  if (walletCount >= organizationConfig.data.maxWalletsAllowed) {
+  if (walletCount >= organizationConfig.maxWalletsAllowed) {
     logger.error("Max wallets allowed reached", {
       organizationID: params.organizationID,
-      maxWalletsAllowed: organizationConfig.data.maxWalletsAllowed,
+      maxWalletsAllowed: organizationConfig.maxWalletsAllowed,
     });
     throw new Error(
       "You've reached the maximum number of wallets allowed. Upgrade for more."
@@ -127,7 +124,7 @@ export const create = async (
       encryptedPrivateKey,
       webhookURL: params.payload.webhookURL,
       encryptedWebhookSecret: encryptedSecret,
-      daoFeeBasisPoints: organizationConfig.data.defaultDaoFeeBasisPoints,
+      daoFeeBasisPoints: organizationConfig.defaultDaoFeeBasisPoints,
       daoFeeRecipient: chain.daoFeeWallet.value() as Address,
       recipientAddress: params.payload.recipientAddress,
       chain: chainSnippet,
@@ -141,7 +138,7 @@ export const create = async (
   try {
     await webhookService.upsertWebhookAndAttachWallet({
       network: params.payload.networkEnum,
-      walletAddress: wallet.data.address,
+      walletAddress: wallet.address,
       wallet,
     });
   } catch (err: any) {
@@ -149,10 +146,10 @@ export const create = async (
       errMessage: err?.message,
       code: err?.code,
       organizationID: params.organizationID,
-      walletID: wallet.data.id,
+      walletID: wallet.id,
     });
     // Delete the wallet
-    await deleteWallet(wallet.data);
+    await deleteWallet(wallet);
     throw err;
   }
 

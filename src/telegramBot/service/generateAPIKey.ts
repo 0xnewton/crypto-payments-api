@@ -1,6 +1,5 @@
 import { logger } from "firebase-functions/v1";
 import { BotContext } from "../types";
-import { FetchResult } from "../../lib/types";
 import { User, UserRole } from "../../users/types";
 import {
   getUserContext,
@@ -17,8 +16,8 @@ export const generateAPIKey = async (ctx: BotContext) => {
   ctx.reply("Ok, generating a new API key... Please wait.");
   logger.info("API key generation command received");
 
-  let user: FetchResult<User>;
-  let organization: FetchResult<Organization>;
+  let user: User;
+  let organization: Organization;
   let role: UserRole;
   try {
     ({ user, organization, role } = await getUserContext(ctx));
@@ -40,13 +39,13 @@ export const generateAPIKey = async (ctx: BotContext) => {
     return;
   }
 
-  let key: FetchResult<APIKey>;
+  let key: APIKey;
   let secretValue: string;
   try {
     // Generate the API key
     ({ key, secretValue } = await apiKeyService.create({
-      userID: user.data.id,
-      organizationID: organization.data.id,
+      userID: user.id,
+      organizationID: organization.id,
     }));
   } catch (err: any) {
     logger.error("Error generating API key", {
@@ -63,9 +62,9 @@ export const generateAPIKey = async (ctx: BotContext) => {
   );
 
   logger.info("API key generated", {
-    key: key.data.id,
-    userID: user.data.id,
-    organizationID: organization.data.id,
+    key: key.id,
+    userID: user.id,
+    organizationID: organization.id,
   });
 
   return;

@@ -14,7 +14,6 @@ import * as walletService from "../../wallets/service";
 import { isEditableRole } from "../../users/utils";
 import { Organization } from "../../organizations/types";
 import { User, UserRole } from "../../users/types";
-import { FetchResult } from "../../lib/types";
 import { WalletSource } from "../../wallets/types";
 
 export const createWallet = async (ctx: BotContext) => {
@@ -53,8 +52,8 @@ export const createWallet = async (ctx: BotContext) => {
 
   ctx.reply("Creating wallet... Please wait.");
 
-  let user: FetchResult<User>;
-  let organization: FetchResult<Organization>;
+  let user: User;
+  let organization: Organization;
   let role: UserRole;
   try {
     ({ user, organization, role } = await getUserContext(ctx));
@@ -79,7 +78,7 @@ export const createWallet = async (ctx: BotContext) => {
   // Call the create wallet service
   try {
     const result = await walletService.create({
-      organizationID: organization.data.id,
+      organizationID: organization.id,
       payload: {
         webhookURL: createWalletPayload.webhookURL,
         webhookSecret: createWalletPayload.webhookSecret,
@@ -88,15 +87,15 @@ export const createWallet = async (ctx: BotContext) => {
         source: WalletSource.Telegram,
       },
       cache: {
-        organization: organization.data,
-        user: user.data,
+        organization,
+        user,
       },
     });
     ctx.reply(
       "Wallet created successfully!\n" +
-        `Address: ${result.data.address}\n` +
-        `Recipient Address: ${result.data.recipientAddress}\n` +
-        `Webhook URL: ${result.data.webhookURL}\n` +
+        `Address: ${result.address}\n` +
+        `Recipient Address: ${result.recipientAddress}\n` +
+        `Webhook URL: ${result.webhookURL}\n` +
         "You will receive a webhook notification whe the wallet is funded."
     );
   } catch (err: any) {

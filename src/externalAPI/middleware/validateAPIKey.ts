@@ -23,7 +23,7 @@ export const validateAPIKey = async (
 
   try {
     const { organization } = await apiKeyService.validate(apiKey);
-    req.organization = organization.data;
+    req.organization = organization;
   } catch (err) {
     logger.debug("Error validating API key", { error: err });
     throw new APIError(401, UNAUTHORIZED_RESPONSE_PAYLOAD);

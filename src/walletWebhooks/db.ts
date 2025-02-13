@@ -13,13 +13,11 @@ export const getMostRecentWebhook = async (
     return null;
   }
   const docs = refsnapshot.docs
-    .map((doc) => {
-      return { data: doc.data(), ref: doc.ref };
-    })
-    .filter((e) => e.data.network === chain);
+    .map((doc) => doc.data())
+    .filter((e) => e.network === chain);
   // Newest webhook first
-  docs.sort((a, b) => b.data.createdAt - a.data.createdAt);
-  return docs[0]?.data || null;
+  docs.sort((a, b) => b.createdAt - a.createdAt);
+  return docs[0] || null;
 };
 
 interface CreateWebhookDBParams {
@@ -39,7 +37,7 @@ export const createWebhookDBAndAttachToWallet = async (
       getWalletDoc(wallet.organizationID, wallet.id)
     );
     const webhookID = webhookRef.id as WalletWebhookID;
-    const payload: WalletWebhook = {
+    const webhookPayload: WalletWebhook = {
       id: webhookID,
       alchemyWebhookID: params.alchemyWebhookID,
       webhookURL: params.webhookURL,
@@ -53,13 +51,13 @@ export const createWebhookDBAndAttachToWallet = async (
       webhookID: webhookID,
     };
 
-    transaction.create(webhookRef, payload);
+    transaction.create(webhookRef, webhookPayload);
     walletRefs.forEach((ref) => transaction.update(ref, updateRequest));
 
-    return { data: payload, ref: webhookRef };
+    return { webhook: webhookPayload };
   });
 
-  return { data: results.data, ref: results.ref };
+  return { webhook: results.webhook };
 };
 
 export const incrementWebhookWalletCountAndUpdateWallet = async (

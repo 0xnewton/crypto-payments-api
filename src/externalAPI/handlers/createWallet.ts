@@ -38,7 +38,7 @@ const createWallet = async (req: APIRequest, res: APIResponse) => {
     });
     const response: CreateWalletResponseV1 = {
       success: true,
-      wallet: walletV1(wallet.data),
+      wallet: walletV1(wallet),
     };
     res.json(response);
     return;

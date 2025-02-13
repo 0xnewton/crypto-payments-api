@@ -1,6 +1,6 @@
 import { logger } from "firebase-functions";
 import { generateAPIKey, hashWithHMAC } from "../../lib/core";
-import { FetchResult, OrganizationID, UserID } from "../../lib/types";
+import { OrganizationID, UserID } from "../../lib/types";
 import { createAPIKey, getAPIKeyByHash, getAPIKeyCount } from "../db";
 import { APIKey } from "../types";
 
@@ -12,7 +12,7 @@ export interface CreateAPIKeyParams {
 }
 
 export interface CreateAPIKeyResponse {
-  key: FetchResult<APIKey>;
+  key: APIKey;
   secretValue: string;
 }
 export const create = async (
@@ -47,9 +47,9 @@ export const create = async (
     hash,
   });
   logger.info("Created API Key", {
-    id: apiKey.data.id,
-    userID: apiKey.data.createdBy,
-    organizationID: apiKey.data.organizationID,
+    id: apiKey.id,
+    userID: apiKey.createdBy,
+    organizationID: apiKey.organizationID,
   });
 
   return { key: apiKey, secretValue };

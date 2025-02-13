@@ -1,6 +1,6 @@
 import { createUserWithOrganization, getUserByID } from "../db";
 import { Role, User } from "../types";
-import { FetchResult, TelegramUserID } from "../../lib/types";
+import { TelegramUserID } from "../../lib/types";
 import { logger } from "firebase-functions";
 import { UserExistsError } from "../errors";
 import { Context } from "telegraf";
@@ -22,8 +22,8 @@ interface CreateUserParams {
 }
 
 export interface CreateUserResponse {
-  user: FetchResult<User>;
-  organization: FetchResult<Organization>;
+  user: User;
+  organization: Organization;
 }
 
 export const createByTelegram = async (
@@ -60,8 +60,8 @@ export const createByTelegram = async (
     },
   });
 
-  let organization: FetchResult<Organization>;
-  let user: FetchResult<User>;
+  let organization: Organization;
+  let user: User;
   try {
     ({ organization, user } = await createUserWithOrganization({
       id: userID,
@@ -94,7 +94,7 @@ export const createByTelegram = async (
         {
           role: Role.Admin,
           userID,
-          organizationID: organization.data.id,
+          organizationID: organization.id,
         },
       ],
     });
@@ -106,7 +106,7 @@ export const createByTelegram = async (
     await Promise.all([
       deleteUser(userID),
       deleteUserAuth(userID),
-      organizationService.deleteOrganization({ id: organization.data.id }),
+      organizationService.deleteOrganization({ id: organization.id }),
     ]);
     throw err;
   }

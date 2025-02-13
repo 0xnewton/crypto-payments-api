@@ -1,6 +1,6 @@
 import { logger } from "firebase-functions";
 import { getAPIKeyCollectionGroup, getAPIKeyCollection } from "../lib/core";
-import { FetchResult, OrganizationID, UserID } from "../lib/types";
+import { OrganizationID, UserID } from "../lib/types";
 import { APIKey } from "./types";
 
 interface CreateAPIKeyParams {
@@ -11,7 +11,7 @@ interface CreateAPIKeyParams {
 
 export const createAPIKey = async (
   params: CreateAPIKeyParams
-): Promise<FetchResult<APIKey>> => {
+): Promise<APIKey> => {
   logger.info("Create API in database", { params });
   const collection = getAPIKeyCollection(params.organizationID);
   const docRef = collection.doc();
@@ -27,10 +27,7 @@ export const createAPIKey = async (
 
   await docRef.create(body);
 
-  return {
-    data: body,
-    ref: docRef,
-  };
+  return body;
 };
 
 interface GetAPIKeyByHashParams {
@@ -43,7 +40,7 @@ interface GetAPIKeyByHashParams {
  */
 export const getAPIKeyByHash = async (
   params: GetAPIKeyByHashParams
-): Promise<FetchResult<APIKey> | null> => {
+): Promise<APIKey | null> => {
   logger.info("Fetch API by hash", { params });
   const key: keyof APIKey = "hash";
   const apiKey = await getAPIKeyCollectionGroup()
@@ -52,7 +49,7 @@ export const getAPIKeyByHash = async (
   const docs = apiKey.docs.map((doc) => {
     return { data: doc.data(), ref: doc.ref };
   });
-  return docs[0] || null;
+  return docs[0].data || null;
 };
 
 export const getAPIKeyCount = async (

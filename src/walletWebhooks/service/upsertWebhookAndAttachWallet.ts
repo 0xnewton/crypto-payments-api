@@ -1,6 +1,6 @@
 import { logger } from "firebase-functions";
 import { walletWebhookURL } from "../../lib/core/config";
-import { Address, FetchResult, NetworkEnum } from "../../lib/types";
+import { Address, NetworkEnum } from "../../lib/types";
 import { MAX_ALCHEMY_WALLETS_PER_WEBHOOK } from "../constants";
 import {
   createWebhookDBAndAttachToWallet,
@@ -19,7 +19,7 @@ import { Wallet } from "../../wallets/types";
 interface UpsertWebhookAndAttachToWalletPayload {
   network: NetworkEnum;
   walletAddress: Address;
-  wallet?: FetchResult<Wallet>;
+  wallet?: Wallet;
 }
 
 export const upsertWebhookAndAttachWallet = async (
@@ -39,7 +39,7 @@ export const upsertWebhookAndAttachWallet = async (
     throw new Error("Wallet not found");
   }
 
-  if (wallet.data.webhookID) {
+  if (wallet.webhookID) {
     logger.error("Wallet already has a webhook", {
       address: payload.walletAddress,
     });
@@ -50,7 +50,7 @@ export const upsertWebhookAndAttachWallet = async (
   const shouldCreateWebhook =
     !webhookDB || webhookDB.walletCount >= MAX_ALCHEMY_WALLETS_PER_WEBHOOK;
 
-  const walletArraysToAdd = [wallet.data];
+  const walletArraysToAdd = [wallet];
 
   if (shouldCreateWebhook) {
     const webhookProvider = await providerCreateWebhook({
@@ -62,14 +62,14 @@ export const upsertWebhookAndAttachWallet = async (
     });
 
     try {
-      const { data } = await createWebhookDBAndAttachToWallet({
+      const { webhook } = await createWebhookDBAndAttachToWallet({
         alchemyWebhookID: webhookProvider.id,
         network: payload.network,
         webhookURL: webhookURL,
         wallets: walletArraysToAdd,
       });
 
-      return data;
+      return webhook;
     } catch (err: any) {
       logger.error("Error creating webhook in DB", {
         error: err?.message,
