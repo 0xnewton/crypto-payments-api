@@ -43,6 +43,16 @@
     },
     {
       "collectionGroup": "Wallets",
+      "fieldPath": "id",
+      "indexes": [
+        {
+          "queryScope": "COLLECTION_GROUP",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "Wallets",
       "fieldPath": "deletedAt",
       "indexes": [
         {

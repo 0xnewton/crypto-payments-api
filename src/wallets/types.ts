@@ -6,6 +6,7 @@ import {
   UnixTimestamp,
   WalletID,
   UserID,
+  WalletWebhookID,
 } from "../lib/types";
 
 export enum WalletSource {
@@ -53,4 +54,5 @@ export interface Wallet {
   source: WalletSource;
   createdBy: UserID | null;
   apiMetadata: WalletAPIMetadata | null;
+  webhookID: WalletWebhookID | null;
 }

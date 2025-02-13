@@ -57,14 +57,15 @@ export const createWallet = async (
     source: params.payload.source,
     createdBy: params.payload.createdBy,
     apiMetadata: params.payload.apiMetadata,
+    webhookID: null,
   };
   await walletRef.set(walletPayload);
   return { data: walletPayload, ref: walletRef };
 };
 
-export const getWalletByField = async (
-  field: "address" & keyof Wallet,
-  value: Wallet["address"]
+const getWalletByField = async (
+  field: ("address" | "id") & keyof Wallet, // If you add one, you should add it to firestore.indexes.json
+  value: Wallet["address"] | Wallet["id"]
 ): Promise<FetchResult<Wallet> | null> => {
   logger.info("Fetching wallet by id", { field, value });
   const refsnapshot = await getWalletCollectionGroup()
@@ -85,6 +86,16 @@ export const getWalletByAddress = async (
 ): Promise<FetchResult<Wallet> | null> => {
   logger.info("Fetching wallet by address", { params });
   return getWalletByField("address", params.address);
+};
+
+interface GetWalletByIDParams {
+  id: WalletID;
+}
+export const getWalletByID = async (
+  params: GetWalletByIDParams
+): Promise<FetchResult<Wallet> | null> => {
+  logger.info("Fetching wallet by address", { params });
+  return getWalletByField("id", params.id);
 };
 
 export const getWalletCountByOrganizationID = async (

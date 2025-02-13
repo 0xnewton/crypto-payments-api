@@ -21,6 +21,8 @@ import * as organizationService from "../../organizations/service";
 import { SUPPORTED_CHAINS } from "../../lib/constants";
 import { Organization } from "../../organizations/types";
 import { User } from "../../users/types";
+import * as webhookService from "../../walletWebhooks/service";
+import { deleteWallet } from "./deleteWallet";
 
 export interface CreateWalletParams {
   organizationID: OrganizationID;
@@ -136,6 +138,23 @@ export const create = async (
   });
 
   // Setup the alchemy webhook (could also be moved to background onCreate function)
+  try {
+    await webhookService.upsertWebhookAndAttachWallet({
+      network: params.payload.networkEnum,
+      walletAddress: wallet.data.address,
+      wallet,
+    });
+  } catch (err: any) {
+    logger.error("Error setting up alchemy webhook", {
+      errMessage: err?.message,
+      code: err?.code,
+      organizationID: params.organizationID,
+      walletID: wallet.data.id,
+    });
+    // Delete the wallet
+    await deleteWallet(wallet.data);
+    throw err;
+  }
 
   return wallet;
 };

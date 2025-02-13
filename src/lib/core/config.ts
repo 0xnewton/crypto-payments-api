@@ -24,6 +24,7 @@ export enum EnvironmentConfigKeys {
    *
    */
   DAO_TREASURY_EVM_ADDRESS = "DAO_TREASURY_EVM_ADDRESS",
+  WALLET_WEBHOOK_URL = "WALLET_WEBHOOK_URL",
 }
 
 export { gcpProjectID };
@@ -37,4 +38,7 @@ export const kmsWebhookSecretEncryptorName = defineString(
 );
 export const daoTreasuryEVMAddress = defineString(
   EnvironmentConfigKeys.DAO_TREASURY_EVM_ADDRESS
+);
+export const walletWebhookURL = defineString(
+  EnvironmentConfigKeys.WALLET_WEBHOOK_URL
 );

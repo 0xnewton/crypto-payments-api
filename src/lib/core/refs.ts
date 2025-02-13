@@ -9,12 +9,14 @@ import {
   UserID,
   APIKeyID,
   WalletID,
+  WalletWebhookID,
 } from "../types";
 import { db } from "./platform";
 import { User } from "../../users/types";
 import { Organization, OrganizationConfig } from "../../organizations/types";
 import { APIKey } from "../../apiKeys/types";
 import { Wallet } from "../../wallets/types";
+import { WalletWebhook } from "../../walletWebhooks/types";
 
 export const getUserCollection = () => {
   return db.collection(DBCollections.Users) as CollectionReference<User>;
@@ -74,4 +76,14 @@ export const getOrganizationConfigRef = (organizationID: OrganizationID) => {
   return getOrganizationRef(organizationID)
     .collection(DBCollections.OrganizationConfig)
     .doc("config") as DocumentReference<OrganizationConfig>;
+};
+
+export const getWalletWebhookCollection = () => {
+  return db.collection(
+    DBCollections.WalletWebhooks
+  ) as CollectionReference<WalletWebhook>;
+};
+
+export const getWalletWebhookDoc = (id: WalletWebhookID) => {
+  return getWalletWebhookCollection().doc(id);
 };

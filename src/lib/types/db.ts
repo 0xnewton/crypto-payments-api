@@ -7,6 +7,7 @@ export enum DBCollections {
   Users = "Users",
   Wallets = "Wallets",
   OrganizationConfig = "OrganizationConfig",
+  WalletWebhooks = "WalletWebhooks",
 }
 
 export type FetchResult<T> = {
@@ -21,5 +22,6 @@ export type TelegramUserID = Brand<number, "TelegramUserID">;
 export type WalletID = Brand<string, "WalletID">;
 export type EncryptedPrivateKey = Brand<string, "EncryptedPrivateKey">;
 export type OrganizationConfigID = "config";
+export type WalletWebhookID = Brand<string, "WalletWebhookID">;
 
 export type UnixTimestamp = number; // Unix time in ms
