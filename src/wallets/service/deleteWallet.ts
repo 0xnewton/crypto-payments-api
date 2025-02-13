@@ -1,7 +1,7 @@
 import { logger } from "firebase-functions";
 import { getWalletDoc } from "../../lib/core";
 import { Wallet } from "../types";
-import * as webhookService from "../../walletWebhooks/service";
+import * as webhookService from "../../webhooks/service";
 
 /**
  * Hard deletes wallet & detach from webhook

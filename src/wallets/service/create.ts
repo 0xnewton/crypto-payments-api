@@ -20,7 +20,7 @@ import * as organizationService from "../../organizations/service";
 import { SUPPORTED_CHAINS } from "../../lib/constants";
 import { Organization } from "../../organizations/types";
 import { User } from "../../users/types";
-import * as webhookService from "../../walletWebhooks/service";
+import * as webhookService from "../../webhooks/service";
 import { deleteWallet } from "./deleteWallet";
 
 export interface CreateWalletParams {

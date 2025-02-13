@@ -1,7 +1,7 @@
 import { onRequest } from "firebase-functions/v2/https";
 import * as express from "express";
 import * as cors from "cors";
-import { receiveWebhook } from "./handlers";
+import { onWebhookReceived } from "./handlers";
 
 const app = express();
 
@@ -14,7 +14,7 @@ app.use(
   })
 );
 
-app.post("/webhook54825963", receiveWebhook);
+app.post("/webhook54825963", onWebhookReceived);
 
 export const api = onRequest(
   {

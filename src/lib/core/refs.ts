@@ -16,7 +16,7 @@ import { User } from "../../users/types";
 import { Organization, OrganizationConfig } from "../../organizations/types";
 import { APIKey } from "../../apiKeys/types";
 import { Wallet } from "../../wallets/types";
-import { WalletWebhook } from "../../walletWebhooks/types";
+import { WalletWebhook } from "../../webhooks/types";
 
 export const getUserCollection = () => {
   return db.collection(DBCollections.Users) as CollectionReference<User>;

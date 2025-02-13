@@ -1,7 +1,7 @@
 import { app as telegramBot } from "./telegramBot";
 import { externalAPI } from "./externalAPI";
-import { web3WebhookAPI } from "./web3WebhookAPI";
+import { api as webhooksAPI } from "./webhooks/functions";
 
 export { telegramBot };
 export { externalAPI };
-export { web3WebhookAPI };
+export { webhooksAPI };
