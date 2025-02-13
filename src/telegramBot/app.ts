@@ -4,19 +4,16 @@ import {
   tgBotAPIKey,
   tgWebhookSecretToken,
 } from "../lib/core";
-import { initializeBot } from "./bot";
+import { getBot } from "./bot";
 import * as express from "express";
-import { TelegrafBot } from "./types";
+import { validateSecretToken } from "./middleware/validateSecretToken";
 
 const expressApp = express();
 expressApp.use(express.json());
-
-let bot: TelegrafBot | null = null;
+expressApp.use(validateSecretToken);
 
 expressApp.use(async (req, res, next) => {
-  if (!bot) {
-    bot = initializeBot();
-  }
+  const bot = getBot();
   try {
     const webhookMiddleware = await bot.createWebhook({
       domain: "https://telegrambot-rev27ez4rq-uc.a.run.app",

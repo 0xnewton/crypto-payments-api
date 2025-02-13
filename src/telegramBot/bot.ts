@@ -6,7 +6,7 @@ import { tgBotAPIKey } from "../lib/core";
 // Define as a singleton
 let bot: TelegrafBot | null = null;
 
-export const initializeBot = (): TelegrafBot => {
+export const getBot = (): TelegrafBot => {
   const apiKey = tgBotAPIKey.value();
   if (!apiKey) {
     throw new Error("Telegram bot API key is not set");
