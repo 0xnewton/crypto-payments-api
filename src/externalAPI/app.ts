@@ -3,7 +3,12 @@ import * as express from "express";
 import * as cors from "cors";
 import { createWallet, demo } from "./handlers";
 import { validateAPIKey, limiter, speedLimiter } from "./middleware";
-import { alchemyAuthToken, alchemyAPIKey, apiKeyHMACSecret } from "../lib/core";
+import {
+  alchemyAuthToken,
+  alchemyAPIKey,
+  apiKeyHMACSecret,
+  alchemySigningToken,
+} from "../lib/core";
 import { bodySchemaValidator } from "./middleware/bodySchemaValidator";
 import { createWalletByAPIReqBodySchema } from "./handlers/createWallet.validator";
 import { errorHandler } from "./middleware/errorHandler";
@@ -37,7 +42,12 @@ app.use(errorHandler);
 export const api = onRequest(
   {
     timeoutSeconds: 120,
-    secrets: [apiKeyHMACSecret, alchemyAPIKey, alchemyAuthToken],
+    secrets: [
+      apiKeyHMACSecret,
+      alchemyAPIKey,
+      alchemyAuthToken,
+      alchemySigningToken,
+    ],
     minInstances: 1,
   },
   app
