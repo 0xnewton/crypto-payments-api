@@ -1,7 +1,17 @@
 import { FieldValue, UpdateData } from "firebase-admin/firestore";
-import { db, getWalletDoc, getWalletWebhookCollection } from "../lib/core";
-import { NetworkEnum, WalletWebhookID } from "../lib/types";
-import { WalletWebhook } from "./types";
+import {
+  db,
+  getWalletDoc,
+  getWalletWebhookCollection,
+  getWebhookReceiptCollection,
+} from "../lib/core";
+import {
+  Address,
+  NetworkEnum,
+  WalletWebhookID,
+  WebhookReceiptID,
+} from "../lib/types";
+import { AlchemyWebhookType, WalletWebhook, WebhookReceipt } from "./types";
 import { Wallet } from "../wallets/types";
 import { logger } from "firebase-functions";
 
@@ -129,5 +139,68 @@ export const decrementWebhookWalletCountAndUpdateWallet = async (
   await db.runTransaction(async (transaction) => {
     transaction.update(webhook, webhookUpdateRequest);
     walletRefs.forEach((ref) => transaction.update(ref, walletUpdateRequest));
+  });
+};
+
+export const getWebhookByAlchemyWebhookID = async (
+  webhookID: string
+): Promise<WalletWebhook | null> => {
+  const collection = getWalletWebhookCollection();
+  const key: keyof WalletWebhook = "alchemyWebhookID";
+  const ref = collection.where(key, "==", webhookID);
+  const snapshot = await ref.get();
+  if (snapshot.empty || snapshot.docs.length === 0) {
+    return null;
+  }
+  const docs = snapshot.docs.map((doc) => doc.data());
+  return docs[0];
+};
+
+export interface WebhookReceiptCreateParams {
+  webhookID: WalletWebhookID;
+  alchemyWebhookID: string;
+  eventID: string;
+  eventType: AlchemyWebhookType;
+  contractAddress: Address;
+  contractDecimals: number;
+  fromAddress: Address;
+  toAddress: Address;
+  rawValue: string;
+  value: number;
+  hash: string;
+  category: string;
+  asset: string;
+  blockNum: string;
+  chain: NetworkEnum;
+}
+export const createWebhookReceipts = async (
+  webhookID: WalletWebhookID,
+  receipts: WebhookReceiptCreateParams[]
+) => {
+  await db.runTransaction(async (transaction) => {
+    const collection = getWebhookReceiptCollection(webhookID);
+    receipts.forEach((receipt) => {
+      const ref = collection.doc();
+      const payload: WebhookReceipt = {
+        id: ref.id as WebhookReceiptID,
+        createdAt: Date.now(),
+        webhookID: receipt.webhookID,
+        alchemyWebhookID: receipt.alchemyWebhookID,
+        eventID: receipt.eventID,
+        eventType: receipt.eventType,
+        contractAddress: receipt.contractAddress,
+        contractDecimals: receipt.contractDecimals,
+        fromAddress: receipt.fromAddress,
+        toAddress: receipt.toAddress,
+        rawValue: receipt.rawValue,
+        value: receipt.value,
+        hash: receipt.hash,
+        category: receipt.category,
+        asset: receipt.asset,
+        blockNum: receipt.blockNum,
+        chain: receipt.chain,
+      };
+      transaction.create(ref, payload);
+    });
   });
 };

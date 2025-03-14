@@ -39,3 +39,20 @@ export const supportedChains = SUPPORTED_CHAINS.filter((c) => {
   }
   return !c.isTestnet;
 });
+
+export const parseNetworkEnum = (network: string): NetworkEnum | undefined => {
+  const normalizedNetwork = network.toLowerCase();
+  if (
+    normalizedNetwork.indexOf("base") &&
+    normalizedNetwork.indexOf("mainnet")
+  ) {
+    return NetworkEnum.BASE_MAINNET;
+  } else if (
+    normalizedNetwork.indexOf("base") &&
+    normalizedNetwork.indexOf("sepolia")
+  ) {
+    return NetworkEnum.BASE_SEPOLIA;
+  }
+
+  return undefined;
+};
