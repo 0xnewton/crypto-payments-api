@@ -15,6 +15,10 @@ import {
 } from "../web3Provider";
 import { getWalletByAddress } from "../../wallets/db";
 import { Wallet } from "../../wallets/types";
+import {
+  createWebhookSigningKey,
+  deleteWebhookSigningKey,
+} from "../../lib/core/secretsService";
 
 interface UpsertWebhookAndAttachToWalletPayload {
   network: NetworkEnum;
@@ -63,6 +67,20 @@ export const upsertWebhookAndAttachWallet = async (
       },
     });
 
+    // Add the signing key to the JSON of signing keys in the secrets manager
+    try {
+      await createWebhookSigningKey({
+        webhookID: webhookProvider.id,
+        value: webhookProvider.signingKey,
+      });
+    } catch (err: any) {
+      logger.error("Error adding webhook secret to secrets manager", {
+        error: err?.message,
+      });
+      await providerDeleteWebhook(webhookProvider.id);
+      throw err;
+    }
+
     try {
       const { webhook } = await createWebhookDBAndAttachToWallet({
         alchemyWebhookID: webhookProvider.id,
@@ -76,6 +94,14 @@ export const upsertWebhookAndAttachWallet = async (
       logger.error("Error creating webhook in DB", {
         error: err?.message,
       });
+      try {
+        // delete the webhook signing key
+        await deleteWebhookSigningKey(webhookProvider.id);
+      } catch (err2: any) {
+        logger.error("Error deleting webhook secret from secrets manager", {
+          error: err2?.message,
+        });
+      }
       await providerDeleteWebhook(webhookProvider.id);
       throw err;
     }

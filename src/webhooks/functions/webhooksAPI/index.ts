@@ -2,7 +2,6 @@ import { onRequest } from "firebase-functions/v2/https";
 import * as express from "express";
 import * as cors from "cors";
 import { onWebhookReceived } from "./handlers";
-import { alchemySigningToken } from "../../../lib/core";
 import {
   addAlchemyContextToRequest,
   validateAlchemySignature,
@@ -34,7 +33,6 @@ app.post("/webhook54825963", onWebhookReceived);
 export const api = onRequest(
   {
     timeoutSeconds: 120,
-    secrets: [alchemySigningToken],
   },
   app
 );
