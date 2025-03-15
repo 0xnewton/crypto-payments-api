@@ -6,7 +6,6 @@ import {
   addAlchemyContextToRequest,
   validateAlchemySignature,
 } from "../middleware";
-import { logger } from "firebase-functions";
 
 const app = express();
 
@@ -17,11 +16,6 @@ app.use(
     origin: "*",
   })
 );
-
-app.use((req, _res, next) => {
-  logger.info("Incoming request", { headers: req.headers });
-  next();
-});
 
 app.use(addAlchemyContextToRequest);
 
