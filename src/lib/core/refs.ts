@@ -16,7 +16,11 @@ import { User } from "../../users/types";
 import { Organization, OrganizationConfig } from "../../organizations/types";
 import { APIKey } from "../../apiKeys/types";
 import { Wallet } from "../../wallets/types";
-import { WalletWebhook, WebhookReceipt } from "../../webhooks/types";
+import {
+  SentWebhookReceipt,
+  WalletWebhook,
+  WebhookReceipt,
+} from "../../webhooks/types";
 
 export const getUserCollection = () => {
   return db.collection(DBCollections.Users) as CollectionReference<User>;
@@ -92,4 +96,13 @@ export const getWebhookReceiptCollection = (webhookID: WalletWebhookID) => {
   return getWalletWebhookDoc(webhookID).collection(
     DBCollections.WebhookReceipts
   ) as CollectionReference<WebhookReceipt>;
+};
+
+export const getSentWebhookReceiptCollection = (
+  organizationID: OrganizationID,
+  walletID: WalletID
+) => {
+  return getWalletDoc(organizationID, walletID).collection(
+    DBCollections.SentWebhookReceipts
+  ) as CollectionReference<SentWebhookReceipt>;
 };

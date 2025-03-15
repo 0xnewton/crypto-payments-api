@@ -2,7 +2,10 @@ import { Request } from "express-serve-static-core";
 import {
   Address,
   NetworkEnum,
+  OrganizationID,
+  SentWebhookReceiptID,
   UnixTimestamp,
+  WalletID,
   WalletWebhookID,
   WebhookReceiptID,
 } from "../lib/types";
@@ -56,4 +59,31 @@ export interface WebhookReceipt {
   asset: string;
   blockNum: string;
   chain: NetworkEnum;
+}
+
+export interface WebhookPayload {
+  receivingAddress: Address;
+  eventID: string;
+  contractAddress: Address;
+  contractDecimals: number;
+  fromAddress: Address;
+  toAddress: Address;
+  value: number;
+  rawValue: string;
+  hash: string;
+  asset: string;
+  chain: NetworkEnum;
+  blockNum: string;
+}
+
+export interface SentWebhookReceipt {
+  id: SentWebhookReceiptID;
+  walletID: WalletID;
+  triggeringWebhookID: WalletWebhookID;
+  organizationID: OrganizationID;
+  payload: WebhookPayload;
+  timestamp: UnixTimestamp;
+  response: string;
+  statusCode: number;
+  webhookURL: string;
 }

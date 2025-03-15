@@ -28,10 +28,26 @@ export const encryptWalletPrivateKey = async (
   return encryptedPrivateKey as EncryptedPrivateKey;
 };
 
+export const decryptWalletPrivateKey = async (
+  encryptedPrivateKey: EncryptedPrivateKey
+): Promise<PrivateKey> => {
+  const config = await getEncryptConfig(kmsPrivateKeyEncryptorName);
+
+  return decryptString(encryptedPrivateKey, config) as Promise<PrivateKey>;
+};
+
 export const encryptWebhookSecret = async (secret: string): Promise<string> => {
   const config = await getEncryptConfig(kmsWebhookSecretEncryptorName);
 
   return encryptString(secret, config);
+};
+
+export const decryptWebhookSecret = async (
+  encryptedSecret: string
+): Promise<string> => {
+  const config = await getEncryptConfig(kmsWebhookSecretEncryptorName);
+
+  return decryptString(encryptedSecret, config);
 };
 
 interface EncryptConfig {
@@ -41,7 +57,7 @@ interface EncryptConfig {
   keyName: string;
 }
 
-export const encryptString = async (
+const encryptString = async (
   privateKey: string,
   config: EncryptConfig
 ): Promise<string> => {
@@ -65,6 +81,32 @@ export const encryptString = async (
   }
 
   return Buffer.from(encryptResponse.ciphertext).toString("base64");
+};
+
+const decryptString = async (
+  encryptedString: string,
+  config: EncryptConfig
+): Promise<string> => {
+  logger.info("Decrypting string", { config });
+
+  const keyName = kmsClient.cryptoKeyPath(
+    config.projectID,
+    config.location,
+    config.keyRingName,
+    config.keyName
+  );
+  const ciphertextBuffer = Buffer.from(encryptedString, "base64");
+
+  const [decryptResponse] = await kmsClient.decrypt({
+    name: keyName,
+    ciphertext: ciphertextBuffer,
+  });
+
+  if (!decryptResponse.plaintext) {
+    throw new Error("Decryption failed: no plaintext returned.");
+  }
+
+  return Buffer.from(decryptResponse.plaintext).toString("utf8");
 };
 
 export const getEncryptConfig = async (keyNameVariable: StringParam) => {

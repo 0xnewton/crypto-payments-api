@@ -2,9 +2,15 @@ import * as functions from "firebase-functions";
 import { DBCollections } from "../../../lib/types";
 import { WebhookReceipt } from "../../types";
 import { getWalletByAddress } from "../../../wallets/db";
+import * as webhooksService from "../../service";
+import * as walletService from "../../../wallets/service";
+import { gasWalletAddressAndPrivateKey } from "../../../lib/core";
 
-export const onWebhookReceiptCreated = functions.firestore
-  .document(
+export const onWebhookReceiptCreated = functions
+  .runWith({
+    secrets: [gasWalletAddressAndPrivateKey],
+  })
+  .firestore.document(
     `${DBCollections.WalletWebhooks}/{webhookID}/${DBCollections.WebhookReceipts}/{webhookReceiptID}`
   )
   .onCreate(async (snapshot, context) => {
@@ -27,5 +33,11 @@ export const onWebhookReceiptCreated = functions.firestore
       return;
     }
     // Hit the webhook URL
-    // Move the funds to the recipient address & take the DAO fee
+    await Promise.allSettled([
+      webhooksService.sendWebhook({ wallet, receipt: webhookReceipt }),
+      walletService.transferFundsToDaoAndReceivingAddress({
+        wallet,
+        webhookReceipt,
+      }),
+    ]);
   });
