@@ -32,9 +32,12 @@ export const createWalletWebhook = async (
   return addressActivityWebhook;
 };
 
-export const deleteWalletWebhook = async (webhookID: string) => {
+export const deleteWalletWebhook = async (
+  webhookID: string,
+  network: NetworkEnum
+) => {
   logger.info("Deleting webhook in web3 provideer", { webhookID });
-  const client = getClient(NetworkEnum.BASE_MAINNET);
+  const client = getClient(network);
 
   await client.notify.deleteWebhook(webhookID);
 
@@ -43,6 +46,7 @@ export const deleteWalletWebhook = async (webhookID: string) => {
 
 export const addOrRemoveAddresses = async (
   webhookID: string,
+  network: NetworkEnum,
   add: Address[],
   remove: Address[]
 ) => {
@@ -51,7 +55,7 @@ export const addOrRemoveAddresses = async (
     add,
     remove,
   });
-  const client = getClient(NetworkEnum.BASE_MAINNET);
+  const client = getClient(network);
 
   await client.notify.updateWebhook(webhookID, {
     addAddresses: add,

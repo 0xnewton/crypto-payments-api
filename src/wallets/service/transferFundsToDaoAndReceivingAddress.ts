@@ -25,6 +25,14 @@ export const transferFundsToDaoAndReceivingAddress = async (
   params: TransferFundsToDaoAndReceivingAddressParams
 ) => {
   logger.info("Transferring funds to DAO and receiving address", { params });
+  const zeroAddress = "0x0000000000000000000000000000000000000000";
+  if (params.webhookReceipt.contractAddress.toLowerCase() === zeroAddress) {
+    logger.warn("Native token transfers are not supported", {
+      walletID: params.wallet.id,
+      hash: params.webhookReceipt.hash,
+    });
+    return;
+  }
   // Retrieve gas wallet credentials (format expected: "address::privateKey")
   const gasWalletValue = gasWalletAddressAndPrivateKey.value();
   const [gasWalletAddress, gasWalletPrivateKey] = gasWalletValue.split("::");
@@ -56,12 +64,19 @@ export const transferFundsToDaoAndReceivingAddress = async (
     provider
   );
 
+  // Create sender wallet for accurate gas estimation.
+  const decryptedPrivateKey = await decryptWalletPrivateKey(
+    params.wallet.encryptedPrivateKey
+  );
+  const senderWallet = new ethers.Wallet(decryptedPrivateKey, provider);
+  const tokenContractWithSender = tokenContract.connect(senderWallet) as any;
+
   // Estimate gas for each token transfer.
   // Use bracket notation on the estimateGas object.
-  const gasEstimateDao = await (tokenContract.estimateGas as any)[
+  const gasEstimateDao = await tokenContractWithSender.estimateGas[
     "transfer(address,uint256)"
   ](params.wallet.daoFeeRecipient, fee);
-  const gasEstimateRecipient = await (tokenContract.estimateGas as any)[
+  const gasEstimateRecipient = await tokenContractWithSender.estimateGas[
     "transfer(address,uint256)"
   ](params.wallet.recipientAddress, amountToRecipient);
 
@@ -83,6 +98,8 @@ export const transferFundsToDaoAndReceivingAddress = async (
   const totalCost = totalGasEstimate * gasPrice;
   const marginMultiplier = BigInt(3);
   const topUpAmount = (totalCost * marginMultiplier) / BigInt(2);
+  const gasLimitDao = (gasEstimateDao * marginMultiplier) / BigInt(2);
+  const gasLimitRecipient = (gasEstimateRecipient * marginMultiplier) / BigInt(2);
   logger.info("Top-up amount", { topUpAmount });
 
   // --- Step 2: Top-Up the Sender's Wallet ---
@@ -99,16 +116,6 @@ export const transferFundsToDaoAndReceivingAddress = async (
   if (!topUpReceipt?.status) throw new Error("Top-up transaction failed");
 
   // --- Step 3: Execute Token Transfers Using the Sender's Wallet ---
-  // Replace with your actual decryption logic to obtain the sender's private key.
-  const decryptedPrivateKey = await decryptWalletPrivateKey(
-    params.wallet.encryptedPrivateKey
-  );
-  const senderWallet = new ethers.Wallet(decryptedPrivateKey, provider);
-
-  const tokenContractWithSender = tokenContract.connect(senderWallet);
-  // You can either use the fixed gas limit or use the estimates you already got.
-  const gasLimit = BigInt("100000");
-
   // Send DAO fee transfer.
   logger.info("Sending DAO fee transfer", {
     daoFeeRecipient: params.wallet.daoFeeRecipient,
@@ -118,7 +125,7 @@ export const transferFundsToDaoAndReceivingAddress = async (
     params.wallet.daoFeeRecipient,
     fee,
     {
-      gasLimit,
+      gasLimit: gasLimitDao,
       gasPrice,
     }
   );
@@ -134,7 +141,7 @@ export const transferFundsToDaoAndReceivingAddress = async (
     params.wallet.recipientAddress,
     amountToRecipient,
     {
-      gasLimit,
+      gasLimit: gasLimitRecipient,
       gasPrice,
     }
   );

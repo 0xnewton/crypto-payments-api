@@ -17,8 +17,20 @@ expressApp.use(validateSecretToken);
 expressApp.use(async (req, res, next) => {
   const bot = getBot();
   try {
+    const hostHeader = req.headers["x-forwarded-host"] || req.headers.host;
+    const protocolHeader = req.headers["x-forwarded-proto"] || "https";
+    const host =
+      typeof hostHeader === "string" ? hostHeader : hostHeader?.[0];
+    const protocol =
+      typeof protocolHeader === "string"
+        ? protocolHeader
+        : protocolHeader?.[0] || "https";
+    const domain = host ? `${protocol}://${host}` : undefined;
+    if (!domain) {
+      throw new Error("Unable to determine Telegram webhook domain");
+    }
     const webhookMiddleware = await bot.createWebhook({
-      domain: "https://telegrambot-rev27ez4rq-uc.a.run.app",
+      domain,
       secret_token: tgWebhookSecretToken.value(),
     });
     // Mount the webhook middleware so that future requests get processed

@@ -41,16 +41,13 @@ export const supportedChains = SUPPORTED_CHAINS.filter((c) => {
 });
 
 export const parseNetworkEnum = (network: string): NetworkEnum | undefined => {
-  const normalizedNetwork = network.toLowerCase();
-  if (
-    normalizedNetwork.indexOf("base") &&
-    normalizedNetwork.indexOf("mainnet")
-  ) {
+  const normalizedNetwork = network.toLowerCase().replace(/_/g, "-");
+  const hasBase = normalizedNetwork.includes("base");
+  const hasMainnet = normalizedNetwork.includes("mainnet");
+  const hasSepolia = normalizedNetwork.includes("sepolia");
+  if (hasBase && hasMainnet) {
     return NetworkEnum.BASE_MAINNET;
-  } else if (
-    normalizedNetwork.indexOf("base") &&
-    normalizedNetwork.indexOf("sepolia")
-  ) {
+  } else if (hasBase && hasSepolia) {
     return NetworkEnum.BASE_SEPOLIA;
   }
 

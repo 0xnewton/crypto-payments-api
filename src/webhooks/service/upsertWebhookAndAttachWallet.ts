@@ -77,7 +77,7 @@ export const upsertWebhookAndAttachWallet = async (
       logger.error("Error adding webhook secret to secrets manager", {
         error: err?.message,
       });
-      await providerDeleteWebhook(webhookProvider.id);
+      await providerDeleteWebhook(webhookProvider.id, payload.network);
       throw err;
     }
 
@@ -96,19 +96,20 @@ export const upsertWebhookAndAttachWallet = async (
       });
       try {
         // delete the webhook signing key
-        await deleteWebhookSigningKey(webhookProvider.id);
+      await deleteWebhookSigningKey(webhookProvider.id);
       } catch (err2: any) {
         logger.error("Error deleting webhook secret from secrets manager", {
           error: err2?.message,
         });
       }
-      await providerDeleteWebhook(webhookProvider.id);
+      await providerDeleteWebhook(webhookProvider.id, payload.network);
       throw err;
     }
   } else {
     // We need to add the address to the webhook
     await providerAddOrRemoveAddresses(
       webhookDB.alchemyWebhookID,
+      webhookDB.network,
       walletArraysToAdd.map((w) => w.address),
       []
     );
@@ -125,6 +126,7 @@ export const upsertWebhookAndAttachWallet = async (
       const removeWalletAddresses = walletArraysToAdd.map((w) => w.address);
       await providerAddOrRemoveAddresses(
         webhookDB.alchemyWebhookID,
+        webhookDB.network,
         [],
         removeWalletAddresses
       );

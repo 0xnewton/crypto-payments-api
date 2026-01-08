@@ -1,7 +1,6 @@
 import { logger } from "firebase-functions";
 import { tgWebhookSecretToken } from "../../lib/core";
 import { Request, Response, NextFunction } from "express";
-import { APIError } from "../../externalAPI/errors";
 
 export const validateSecretToken = (
   req: Request,
@@ -12,11 +11,13 @@ export const validateSecretToken = (
   const expectedSecret = tgWebhookSecretToken.value();
   if (!expectedSecret) {
     logger.error("Expected secret token is not set");
-    throw new APIError(500, { message: "Unauthorized" });
+    res.status(500).send("Unauthorized");
+    return;
   }
   if (secretInHeader !== expectedSecret) {
     logger.error("Invalid secret token");
-    throw new APIError(500, { message: "Unauthorized" });
+    res.status(401).send("Unauthorized");
+    return;
   }
 
   next();

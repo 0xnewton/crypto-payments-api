@@ -16,6 +16,7 @@ export const detachWallet = async (payload: DetachWalletPayload) => {
 
   await addOrRemoveAddresses(
     payload.wallet.webhookID,
+    payload.wallet.chain.networkEnum,
     [],
     [payload.wallet.address]
   );
@@ -32,6 +33,7 @@ export const detachWallet = async (payload: DetachWalletPayload) => {
     // Add the wallet back to the webhook
     await addOrRemoveAddresses(
       payload.wallet.webhookID,
+      payload.wallet.chain.networkEnum,
       [payload.wallet.address],
       []
     );
